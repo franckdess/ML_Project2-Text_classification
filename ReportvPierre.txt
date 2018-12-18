@@ -41,19 +41,28 @@ We started with the following simple model to get acquainted with the data. As a
 Now that we have a vector representation for each word, we need to obtain the vector representation for each tweet.
 Our first approach to obtain the vector representation of a tweet was to take the average of the vector representation of the words constituing this tweet.
 
-The vector representation of each 
+The vector representation of each tweet corresponds to our training features while the actual sentiment of the tweet corresponds to the train prediction.
+Having both the features and the predictions we ran many different classifiers to obtain the best model possible.
 
-Now we have the vector for each tweet; this is our train features and we have the sentiment of each of these tweets, this is the train prediction. Having both of them we ran many classifiers to obtain a model. 
 ------------------------------------------------------------------------------------------------
 COMPARAISON OF STANDARD CLASSIFIERS
 SGDCLASSFIER, LOGISTICREGRESSION, LINEARSVC
 ------------------------------------------------------------------------------------------------
-Clearly by looking at the above graphs we can see that the accuracy of our model is bounded by XXX. This means that we have to improve our preprocessing step.
+
+By observing the above graphs, we can see that the accuracy of our model is bounded by XXX.
+This means that we have to improve our preprocessing step in order to get a bettwer accuracy.
 
 2. Taking into account the weight of each word into the tweet
 
-By looking at our first model, we saw one step that could be improved, which is the way of forming the tweet's vector. Indeed in the last model, we simply took the average over each word for the tweet. This is not a proper way to form the vector since it does not take into account the weight of the words. This is a quit simple concept. A word like 'a', 'the', 'this' and so on do not bring the same amount of information as 'happy' or 'sad' for example. Hence weighting each word would be a great move forward in order to obtain a better accuracy. This is done by using the TfidfVectorizer function of the library Scikit learn.
-The TfidfVectorizer function converts a collection of raw documents to a matrix of TF-IDF features. Now let us explain simply what is a TF-IFD matrix. Assume one want to add weight to word. A simple way to do that is by taking the frequency of the word in a given document. It is, if a word appears many times in a document (an article, a book, ...) this word is important for that document. But, in the other hand, if this word appears often in a given document, but also appears often in other documents, this word is no longer important. This is the case for 'a', 'the', and so on. These words appear often in all document. Therefore the weight of these words should be really small since it does not bring any relevant information.
+The main aspect of our first model we can improve is our strategy to construct the vector representation of the tweet based on the vector representation of its individual words.
+
+In our first model, we simply took the unweighted average of the vector representation of each word constituing the tweet. This is not an optimal way to form the vector since we do not take into account the importance of the words. For example stopwords such as 'a', 'the' or 'this' don't bring the same amount of information as 'happy' or 'sad', so they shouldn't be treated as having the same importance. It is therefore natural that attributing weights to words depending on their importance would result in a greater accuracy. We implement this improvement using the TfidfVectorizer function of the Scikit learn library.
+
+The TfidfVectorizer function converts a collection of raw documents to a matrix of TF-IDF features. Now let us explain simply what is a TF-IFD matrix.
+
+Let's now see what the TF-IDF matrix does.
+Our aim is to give weights to the words according to their importance. A natural way to get the importance of a word is to take its frequency in a given document (an article, a book, a tweet, ...). But if a word also appears often in other documents, the importance of this word is reduced. Take stopwords for example, they appear in all documents and therefore should have a very small weight as they don't bring any relevant information.
+
 
 Back to our TfidfVectorizer, this function will take a list of documents and vectorize them, by taking into account the weight of each word, that is its TF-IDF 'score'. The list of document is no other than the list of tweets. Each tweet can be seen as a document. Hence TfidfVectorizer directly compute the vector of a tweet instead of computing the vector a word. We have now a second set of vectorized tweets. We will apply the same reasoning as above by showing the difference of accuracies between many classifiers.
 ------------------------------------------------------------------------------------------------
