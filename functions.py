@@ -1,39 +1,38 @@
 import numpy as np
 import pandas as pd
-import re
+from nltk.tokenize import TweetTokenizer
+from nltk.stem.porter import PorterStemmer
+from nltk.stem.wordnet import WordNetLemmatizer
 
-def tweet_to_vect(tweet, voc_cut, all_vects):
-    """ Map a tweet to a vector using the vector of each
-        word that is present in the tweet"""
-    word_array = re.findall(r'\w+', tweet)
-    vect = np.zeros(20)
-    for word in word_array:
-        i = np.argwhere(voc_cut == word)
-        if(i.shape[0] != 0): 
-            vect += all_vects[i[0][0]]
-    return vect/len(word_array)
+def tokenize(t):
+    """ Customized tokenizer called by TfidfVectorizer.
+        Tokenize tweets using TweetTokenizer and lemmatize
+        each token with WordNetLemmatizer. """
+    tweet_tok = TweetTokenizer(strip_handles=True, reduce_len=True)
+    tokens = tweet_tok.tokenize(t)
+    wnl = WordNetLemmatizer()
+    stems = []
+    for item in tokens:
+        stems.append(wnl.lemmatize(item))
+    return stems
 
-def weighted_tweet_to_vect(tweet, voc_cut, all_vects, score_pos, score_neg, dict_):
-    """ Map a tweet to a vector using the vector of each
-        word that is present in the tweet and multiply it
-        by its TF-IDF value. """
-    word_array = re.findall(r'\w+', tweet)
-    vect = np.zeros(20)
-    for word in word_array:
-        i = np.argwhere(voc_cut == word)
-        if(word in dict_):
-            id_in_dict = dict_[word]
-            score = np.maximum(score_pos[0, id_in_dict], score_neg[0, id_in_dict])
-            if(i.shape[0] != 0): 
-                vect += score * all_vects[i[0][0]]
-        else:
-            if(i.shape[0] != 0): 
-                vect += all_vects[i[0][0]]
-    return vect/len(word_array)
+def import_data(full=False):
+    """ Import the test tweets, the train tweets positive and the train
+        tweets negative. Import small sets of full sets depending if the
+        'full' parameter is set to True of False.
+        Return pandas dataframe for each of the 3 sets. """
+    if(full):
+        tweet_pos = pd.read_csv('data/train_pos_full.txt', header = None, sep = "\r\n", engine = 'python')
+        tweet_neg = pd.read_csv('data/train_neg_full.txt', header = None, sep = "\r\n", engine = 'python')
+    else:
+        tweet_pos = pd.read_csv('data/train_pos.txt', header = None, sep = "\r\n", engine = 'python')
+        tweet_neg = pd.read_csv('data/train_neg.txt', header = None, sep = "\r\n", engine = 'python')
+    tweet_test = pd.read_csv('data/test_data.txt', header = None, sep = "\r\n", engine = 'python')
+    return tweet_pos, tweet_neg, tweet_test
 
 def clean_data(array):
     """ Clean the data by deleting the id
-        placed in the front of the tweet."""
+        placed in the front of the tweet. """
     ret = np.zeros(len(array))
     for i in range(len(array)):
         drop_id = len(str(i+1)) + 1
@@ -41,6 +40,8 @@ def clean_data(array):
     return array
 
 def zero_to_neg(array):
+    """ Given an array of 0 and 1, transform it into
+    an array of -1 and 1. """
     ret = np.ones(len(array))
     for i in range(len(array)):
         if(array[i] == 0):
@@ -49,7 +50,7 @@ def zero_to_neg(array):
 
 def build_submission(y_pred, id_submission):
     """ Build submission and save it into the
-        folder 'prediction'."""
+        folder 'prediction' with id 'id_submission'."""
     y_pred_ = zero_to_neg(y_pred)
     ret = np.ones((len(y_pred_), 2))
     for i in range(len(y_pred_)):
