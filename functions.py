@@ -3,6 +3,7 @@ import pandas as pd
 from nltk.tokenize import TweetTokenizer
 from nltk.stem.porter import PorterStemmer
 from nltk.stem.wordnet import WordNetLemmatizer
+import re
 
 def tokenize(t):
     """ Customized tokenizer called by TfidfVectorizer.
@@ -47,6 +48,17 @@ def zero_to_neg(array):
         if(array[i] == 0):
             ret[i] = -1
     return ret
+
+def tweet_to_vect(tweet, voc_cut, all_vects):
+    """ Map a tweet to a vector using the vector of each
+        word that is present in the tweet"""
+    word_array = re.findall(r'\w+', tweet)
+    vect = np.zeros(20)
+    for word in word_array:
+        i = np.argwhere(voc_cut == word)
+        if(i.shape[0] != 0): 
+            vect += all_vects[i[0][0]]
+    return vect/len(word_array)
 
 def build_submission(y_pred, id_submission):
     """ Build submission and save it into the

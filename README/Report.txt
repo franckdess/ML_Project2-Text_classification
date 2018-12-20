@@ -1,0 +1,80 @@
+MACHINE LEARNING - PROJECT 2
+REPORT
+
+
+Abstract - Text classification is a core topic of Machine Learning. It is used in every day life to determine sentiment or opinion from social media posts, detect spam emails, categorize articles or documents and many more. Based on Natural Language Processing, one can ask ourselves whether computers can understand a human language or not, and if not, try to figure it out what it is able do understand and how it can do it. Social media posts classification could be a main topic since a post, say a tweet 
+
+
+Introduction - In this paper we are going to find out which tools can be used in order to help a computer understand the english language. Indeed given a set of tweets, we would like to train the computer so it can decide whether a given tweet outputs a positive or a negative sentiment. In order to achieve a high accuracy we used many libraries:
+- Pandas: used to create and manipulate data frames.
+- Scikit learn, which is the library that implements the classifier functions we used. It also offers other functions to improve the accuracy as a grid search k-fold cross validation in order to optimize classifiers' parameters, and preprocessing functions like TfidfVectorizer, which is need to transform tweets to vectors. It also implements some useful metrics used to test the accuracy of our models.
+- NLTK 
+
+1. How to transform a sequence of words into a vector
+
+++ add library and function used / + part of code ?
+
+
+To understand the main issue of text classification, it is important to understand how a word or a sequence of words is transformed into a vector. Assume we can transform k sequences of words into k vectors of dimension n, we could easily construct a KxN matrix with n features. Furthermore, assume that for each of the sequences we know the sentiment, positive (1) or negative (-1). It would now be easy to feed the KxN matrix and the sentiment list to a classifier in order to obtain a model. See Figure 1.
+
+As just described above, we started with this quit simple model to get in touch with the data. We decided to first transform each word into a vector using GloVe algorithm. This algorithm is based on co-occurence matrix. This matrix is constructed from the most current word and their context. See ....... to obtain more explanation about this algorithm developed by Stanford.
+Now that we obtained a vector for each word, we need to obtain a vector for the whole tweet. The first approach we used was simply to average all word's vector of a tweet in order to obtain the tweet's vector.
+
+Now we have the vector for each tweet; this is our train features and we have the sentiment of each of these tweets, this is the train prediction. Having both of them we ran many classifiers to obtain a model. 
+------------------------------------------------------------------------------------------------
+COMPARAISON OF STANDARD CLASSIFIERS
+SGDCLASSFIER, LOGISTICREGRESSION, LINEARSVC
+------------------------------------------------------------------------------------------------
+Clearly by looking at the above graphs we can see that the accuracy of our model is bounded by XXX. This means that we have to improve our preprocessing step.
+
+2. Taking into account the weight of each word into the tweet
+
+By looking at our first model, we saw one step that could be improved, which is the way of forming the tweet's vector. Indeed in the last model, we simply took the average over each word for the tweet. This is not a proper way to form the vector since it does not take into account the weight of the words. This is a quit simple concept. A word like 'a', 'the', 'this' and so on do not bring the same amount of information as 'happy' or 'sad' for example. Hence weighting each word would be a great move forward in order to obtain a better accuracy. This is done by using the TfidfVectorizer function of the library Scikit learn.
+The TfidfVectorizer function converts a collection of raw documents to a matrix of TF-IDF features. Now let us explain simply what is a TF-IFD matrix. Assume one want to add weight to word. A simple way to do that is by taking the frequency of the word in a given document. It is, if a word appears many times in a document (an article, a book, ...) this word is important for that document. But, in the other hand, if this word appears often in a given document, but also appears often in other documents, this word is no longer important. This is the case for 'a', 'the', and so on. These words appear often in all document. Therefore the weight of these words should be really small since it does not bring any relevant information.
+
+Back to our TfidfVectorizer, this function will take a list of documents and vectorize them, by taking into account the weight of each word, that is its TF-IDF 'score'. The list of document is no other than the list of tweets. Each tweet can be seen as a document. Hence TfidfVectorizer directly compute the vector of a tweet instead of computing the vector a word. We have now a second set of vectorized tweets. We will apply the same reasoning as above by showing the difference of accuracies between many classifiers.
+------------------------------------------------------------------------------------------------
+RUN TF-IDF WITH NO PARAMETERS AND PRINT ACCURACIES FOR DIFFERENT CLASSIFIERS WITH NO PARAMETERS
+SGDCLASSIFIER, LOGISTICREGRESSION, LINEARSVC
+------------------------------------------------------------------------------------------------
+
+Note that the TfidfVectorizer return a matrix where each row corresponds to the vector of a tweet. The matrix returned by TfidfVectorizer is a sparse matrix. This prevent us to make much transformations on it but it allow the computation to be way more fast.
+
+3. Improve TfidfVectorizer by taking into account that we are working with tweets
+
+The last model described was a pretty good improvement compared to the first one. But something can still be improved. Indeed the TfidfVectorizer function can be customized. The stop words list can be tuned as well as the tokenizer. We first get into the stop words. In the last model the stop words used were the default one of NLTK, that is the stop words of the english language. But the tweets in general do not follow the usual principles of grammar and vocabulary. That is, we needed to find a new list of stop words that would better fit the context of social media. By searching on the web we found many lists of stop word related to social media. This stop word would certainly increase the accuracy since it takes into account that we are working with tweets and indeed it is a list of stop words for tweet. We combined 3 lists that can be found HERE in order to obtain the stop words list twitter-stopwords-final.txt.
+
+Another parameter of the TfidfVectorizer that is tunable is the tokenizer. The tokenizer is the function that transforms a tweet into a list of words. TfidfVectorizer has a default tokenizer, but once again it does not take into account the fact that we are on a social media context. To settle this issue, we define our own tuned tokenizer:
+
+	def tokenize(t):
+    		tweet_tok = TweetTokenizer(strip_handles=True, reduce_len=True)
+    		tokens = tweet_tok.tokenize(t)
+    		wnl = WordNetLemmatizer()
+    		stems = []
+    		for item in tokens:
+        		stems.append(wnl.lemmatize(item))
+    		return stems
+
+The TweetTokenizer() is a tweet-aware tokenizer, i.e, a function that splits the tweet into words knowing that it is working with tweets. This means that it takes into account smiley like ':-)' or hashtags.
+After the tokenizing step, we pass each token into a lemmatizer function. The lemmatizing step is the lexical analysis, which group words of the same family. This means that each word will be taken back to its root. It groups the different forms a word can take: a name, a plural a verb an infinitive and so on. For example, 'taking' will be taken back to 'take', 'dogs' will be taken back to 'dog'.
+
+Now we can construct the new TfidfVectorizer the following way :
+
+	vectorizer = TfidfVectorizer(analyzer='word', stop_words = stopw, tokenizer=tokenize, ngram_range=(1,4))
+
+Having an updated version of the tweets' vectors, we ran the same classifiers as above to check for improvements.
+
+------------------------------------------------------------------------------------------------
+RUN TF-IDF WITH NO PARAMETERS AND PRINT ACCURACIES FOR DIFFERENT CLASSIFIERS WITH NO PARAMETERS
+SGDCLASSIFIER, LOGISTICREGRESSION, LINEARSVC
+------------------------------------------------------------------------------------------------
+
+We can clearly see an improvement compared to the previous versions of tweets' vectors.
+
+4. Find the best classifier and tune its parameters
+
+
+
+
+
+
