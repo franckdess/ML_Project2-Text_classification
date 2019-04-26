@@ -1,3 +1,3 @@
 # ML_project2
 
-Please, see the folder .../... for the final submission and clean code.
+Please, see the folder Submission for the final submission, clean code and report.
