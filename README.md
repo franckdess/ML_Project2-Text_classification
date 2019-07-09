@@ -1,6 +1,4 @@
-Machine Learning
-Project 2 - Text classification
-
+# Machine Learning - Project 2 - Text classification
 
 The goal of this project is to predict whether the tweets present in the tweet_test.txt file reflect a positive or a negative sentiment. More precisely, a smiley ':)' ':(' has been removed from each tweet and the goal is to predict it with the remaining tweet.
 
