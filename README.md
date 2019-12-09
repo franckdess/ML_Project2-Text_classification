@@ -2,7 +2,7 @@
 
 The goal of this project is to predict whether the tweets present in the tweet_test.txt file reflect a positive or a negative sentiment. More precisely, a smiley ':)' ':(' has been removed from each tweet and the goal is to predict it with the remaining tweet.
 
-Getting Started
+## Getting Started
 
 The .zip file contains everything needed to run the .py and .ipynb files directly. This unzipped folder contains:
 
@@ -27,9 +27,9 @@ Before running the script described above, make sure that the following librarie
 - numpy
 
 If this is not the case, run the following command:
-	$pip install library_name
-where library_name is the name of the missing library.
+	`$pip install library_name`
+where `library_name` is the name of the missing library.
 
-Understanding the code
+## Understanding the code
 
 In both functions.py and run.py files, the implementation of every function as well as every step are precisely described. Please refer to the corresponding file to have the complete explanation.
